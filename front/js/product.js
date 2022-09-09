@@ -110,6 +110,10 @@ function bindAddToCartButton(productID) {
     });
 }
 
+/**
+ * Add an item to the cart
+ * @param {object} item 
+ */
 function addToCart(item) {
     if (!localStorage.getItem('cart')) {
         localStorage.setItem('cart', JSON.stringify([]));
