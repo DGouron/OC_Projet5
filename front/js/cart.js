@@ -3,13 +3,18 @@
  */
 document.addEventListener('DOMContentLoaded', () => {
   createCartElement(getCart());
+  displayTotalPrice();
+  calculateTotalQuantity();
 });
 
 function getCart() {
     const cart = JSON.parse(localStorage.getItem('cart'));
     return cart;
 }
-
+function getTotalPrice() {
+    const totalPrice = JSON.parse(localStorage.getItem('totalPrice'));
+    return totalPrice;
+}
 function createCartElement(cart){
     const cartList = document.getElementById('cart__items');
     for (const item of cart) {
@@ -135,9 +140,23 @@ function constructSettingQuantity(localItem){
     itemQuantity.appendChild(itemQuantityLabel);
     itemQuantity.appendChild(itemQuantityInput);
 
+    itemQuantityInput.addEventListener('change', (event) => {
+        updateQuantity(event, getItemIdentificationFromElement(itemQuantity));
+    });
+
     return itemQuantity;
 }
 
+function updateQuantity(event, itemIdentification){
+    const newQuantity = event.target.value;
+    let cart = getCart();
+    const itemIndex = cart.findIndex((item) => item.id === itemIdentification.id && item.color === itemIdentification.color);
+    cart[itemIndex].quantity = newQuantity.toString();
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    displayTotalPrice();
+    calculateTotalQuantity();
+}
 
 function constructItemDeleteButton(){
     const itemDeleteButton = document.createElement('div');
@@ -146,5 +165,64 @@ function constructItemDeleteButton(){
         itemDeleteButtonText.classList.add('deleteItem');
         itemDeleteButtonText.textContent = 'Supprimer';
     itemDeleteButton.appendChild(itemDeleteButtonText);
+
+    
+    itemDeleteButton.addEventListener('click', () => {
+        deleteItemByID(getItemIdentificationFromElement(itemDeleteButton));
+    });
+
     return itemDeleteButton;
+}
+
+function deleteItemByID(itemIdentification){
+    console.log("delete item " + itemIdentification.id + " " + itemIdentification.color);
+
+    let cart = getCart();
+    const itemIndex = cart.findIndex((item) => item.id === itemIdentification.id && item.color === itemIdentification.color);
+    cart.splice(itemIndex, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    refreshCartView();
+}
+
+function getItemIdentificationFromElement(element){
+    const itemID = element.closest('article').getAttribute('data-id');
+    const itemColor = element.closest('article').getAttribute('data-color');
+
+    const itemIdentification = {
+        id: itemID,
+        color: itemColor
+    }
+
+    return itemIdentification;
+}
+
+function refreshCartView(){
+    const cartListAnchor = document.getElementById('cart__items');
+    const cartListChildren = cartListAnchor.children;
+    for (let i = cartListChildren.length - 1; i >= 0; i--) {
+        cartListChildren[i].remove();
+    };
+
+    createCartElement(getCart());
+    displayTotalPrice();
+    calculateTotalQuantity();
+}
+
+function displayTotalPrice(){
+    const totalPrice = getTotalPrice();
+    const cartTotal = document.getElementById('totalPrice');
+    console.log(totalPrice);
+    cartTotal.textContent = Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(totalPrice);
+}
+
+function calculateTotalQuantity(){
+    const cart = getCart();
+    let totalArticles = 0;
+    cart.forEach((item) => {
+        totalArticles += parseInt(item.quantity);
+    });
+
+    const cartTotal = document.getElementById('totalQuantity');
+    cartTotal.textContent = totalArticles;
 }
