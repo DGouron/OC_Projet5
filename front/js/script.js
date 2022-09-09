@@ -1,18 +1,45 @@
 
+/**
+ * Add a new item to the DOM
+ * @param {object} item 
+ * @param {element} parentRef 
+ */
 const addNewItem = (item, parentRef) => {
     parentRef.appendChild(constructItemLink(item));
 };
 
-fetch('http://localhost:3000/api/products')
-.then(response => response.json())
-.then(data => {
-    const itemsList = document.getElementById('items');
-    data.map(item => {
-        addNewItem(item, itemsList);
-    });
-})
-.catch(error => console.log(error));
+/**
+ * Fetch the data from the API
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    getItems();
+});
 
+/**
+ * Get all items from the API
+ */
+async function getItems(){
+    try {
+        const response = await fetch('http://localhost:3000/api/products');
+        const data = await response.json();
+
+        const itemsList = document.getElementById('items');
+
+        for (const item of data) {
+            addNewItem(item, itemsList);
+        }
+
+    } catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+}
+
+/**
+ * Generate a link from an item
+ * @param {object} item 
+ * @returns 
+ */
 function constructItemLink(item) {
     const link = document.createElement('a');
     link.href = `./product.html?id=${item._id}`;
@@ -20,6 +47,11 @@ function constructItemLink(item) {
     return link;
 }
 
+/**
+ * Generate an article from an item
+ * @param {object} item 
+ * @returns 
+ */
 function constructItemArticle(item) {
     const article = document.createElement('article');
         article.appendChild(constructItemImage(item.imageUrl, item.altTxt));
@@ -28,6 +60,12 @@ function constructItemArticle(item) {
     return article;
 }
 
+/**
+ *  Generate an image from an item
+ * @param {string} imageLink 
+ * @param {string} alternativeText 
+ * @returns 
+ */
 function constructItemImage(imageLink, alternativeText) {
     const image = document.createElement('img');
         image.src = imageLink;
@@ -35,6 +73,11 @@ function constructItemImage(imageLink, alternativeText) {
     return image;
 }
 
+/**
+ * Generate a name from an item
+ * @param {string} itemName 
+ * @returns 
+ */
 function constructItemName(itemName) {
     const name = document.createElement('h3');
         name.textContent = itemName;
@@ -42,6 +85,11 @@ function constructItemName(itemName) {
     return name;
 }
 
+/**
+ * Generate a description from an item
+ * @param {string} itemDescription 
+ * @returns 
+ */
 function constructItemDescription(itemDescription) {
     const description = document.createElement('p');
         description.textContent = itemDescription;

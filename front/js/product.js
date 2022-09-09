@@ -1,3 +1,5 @@
+
+//Mettre ces const dans une fonction pour les récupérer dans le fetch
 const params = new URLSearchParams(window.location.search);
 const productID = params.get('id');
 
@@ -69,6 +71,10 @@ function bindAddToCartButton() {
 }
 
 function addToCart(item) {
+    //Si l'objet (id and color) n'est pas déjà stocker -> ajouter
+
+    //Si objet déjà stocker -> ajouter la quantité
+
     confirmAddToCart(item);
 }
 
