@@ -11,10 +11,6 @@ function getCart() {
     const cart = JSON.parse(localStorage.getItem('cart'));
     return cart;
 }
-function getTotalPrice() {
-    const totalPrice = JSON.parse(localStorage.getItem('totalPrice'));
-    return totalPrice;
-}
 function createCartElement(cart){
     const cartList = document.getElementById('cart__items');
     for (const item of cart) {
@@ -210,10 +206,17 @@ function refreshCartView(){
 }
 
 function displayTotalPrice(){
-    const totalPrice = getTotalPrice();
-    const cartTotal = document.getElementById('totalPrice');
-    console.log(totalPrice);
-    cartTotal.textContent = Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(totalPrice);
+    const totalPrice = document.getElementById('totalPrice');
+    totalPrice.textContent = Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(calculateTotalPrice());
+}
+
+function calculateTotalPrice(){
+    let cart = getCart();
+    let totalPrice = 0;
+    cart.forEach((item) => {
+        totalPrice += parseInt(item.quantity) * item.price;
+    });
+    return totalPrice;
 }
 
 function calculateTotalQuantity(){

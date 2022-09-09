@@ -103,7 +103,8 @@ function bindAddToCartButton(productID) {
             const item = {
                 id: productID,
                 quantity: quantity,
-                color: color
+                color: color,
+                price: document.getElementById('price').textContent
             }
             addToCart(item);
         }
