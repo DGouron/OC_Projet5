@@ -1,8 +1,11 @@
 
-//Mettre ces const dans une fonction pour les récupérer dans le fetch
-const params = new URLSearchParams(window.location.search);
-const productID = params.get('id');
 
+/**
+ * Fetch the data from the API
+ */
+ document.addEventListener('DOMContentLoaded', () => {
+    getItem();
+});
 
 const addItemInformations = (item) => {
     const itemImageAnchor = document.getElementsByClassName('item__img')[0];
@@ -14,15 +17,31 @@ const addItemInformations = (item) => {
     constructItemColors(item.colors);
 }
 
-fetch('http://localhost:3000/api/products/' + productID)
-.then(response => response.json())
-.then(data => {
-    addItemInformations(data);
-    bindAddToCartButton();
-})
-.catch(error => console.log(error));
+/**
+ * Get the item from the API
+ */
+async function getItem() {
+    const params = new URLSearchParams(window.location.search);
+    const productID = params.get('id');
 
+    try {
+        const response = await fetch(`http://localhost:3000/api/products/${productID}`);
+        const data = await response.json();
+        addItemInformations(data);
+        bindAddToCartButton();
+    }
+    catch (error) {
+        console.log(error);
+        throw new Error(error);
+    }
+};
 
+/**
+ * Generate an image from an item
+ * @param {string} imageLink 
+ * @param {string} alternativeText 
+ * @returns 
+ */
 function constructItemImage(imageLink, alternativeText) {
     const image = document.createElement('img');
         image.src = imageLink;
@@ -30,21 +49,37 @@ function constructItemImage(imageLink, alternativeText) {
     return image;
 }
 
+/**
+ * Generate a title from an item
+ * @param {string} title 
+ */
 function constructItemTitle(title) {
     const anchor = document.getElementById('title');
         anchor.textContent = title;
 }
 
+/**
+ * Generate a price from an item
+ * @param {number} price 
+ */
 function constructItemPrice(price){
     const anchor = document.getElementById('price');
         anchor.textContent = price;
 }
 
+/**
+ * Generate a description from an item
+ * @param {string} description 
+ */
 function constructItemDescription(description){
     const anchor = document.getElementById('description');
         anchor.textContent = description;
 }
 
+/**
+ * Generate select from colors of an item
+ * @param {array} colors 
+ */
 function constructItemColors(colors){
     const anchor = document.getElementById('colors');
     colors.map(color => {
@@ -55,6 +90,9 @@ function constructItemColors(colors){
     });
 }
 
+/**
+ * Bind the add to cart button
+ */
 function bindAddToCartButton() {
     const button = document.getElementById('addToCart');
     button.addEventListener('click', (event) => {
@@ -72,6 +110,7 @@ function bindAddToCartButton() {
 
 function addToCart(item) {
     //Si l'objet (id and color) n'est pas déjà stocker -> ajouter
+    
 
     //Si objet déjà stocker -> ajouter la quantité
 
