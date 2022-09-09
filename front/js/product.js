@@ -28,7 +28,7 @@ async function getItem() {
         const response = await fetch(`http://localhost:3000/api/products/${productID}`);
         const data = await response.json();
         addItemInformations(data);
-        bindAddToCartButton();
+        bindAddToCartButton(productID);
     }
     catch (error) {
         console.log(error);
@@ -93,30 +93,65 @@ function constructItemColors(colors){
 /**
  * Bind the add to cart button
  */
-function bindAddToCartButton() {
+function bindAddToCartButton(productID) {
     const button = document.getElementById('addToCart');
     button.addEventListener('click', (event) => {
         event.preventDefault();
         const quantity = document.getElementById('quantity').value;
-        const color = document.getElementById('colors').value;
-        const item = {
-            id: productID,
-            quantity: quantity,
-            color: color
+        if(quantity > 0) {
+            const color = document.getElementById('colors').value;
+            const item = {
+                id: productID,
+                quantity: quantity,
+                color: color
+            }
+            addToCart(item);
         }
-        addToCart(item);
     });
 }
 
 function addToCart(item) {
-    //Si l'objet (id and color) n'est pas déjà stocker -> ajouter
-    
+    if (!localStorage.getItem('cart')) {
+        localStorage.setItem('cart', JSON.stringify([]));
+    }
 
-    //Si objet déjà stocker -> ajouter la quantité
+    let cart = localStorage.getItem('cart');
+    cart = JSON.parse(cart);
+
+    if(getIndexOfItem(item, cart) !== -1) {        //Ajouter la quantité
+        const indexOfItem = getIndexOfItem(item, cart);
+        const newQuantity = parseInt(cart[indexOfItem].quantity) + parseInt(item.quantity);
+        cart[indexOfItem].quantity = newQuantity.toString();
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }else{
+        cart.push(item);
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
 
     confirmAddToCart(item);
 }
 
+/**
+ * Return index of an item in the cart whit the same id and color
+ * @param {object} item 
+ * @returns 
+ */
+function getIndexOfItem(item, cart) {
+    let index = -1;
+    for (let index = 0; index < cart.length; index++) {
+        const element = cart[index];
+        if(element.id === item.id && element.color === item.color){
+            return index;
+        }
+    }
+
+    return index;
+}
+
+/**
+ * Confirm the add to cart event to the crawler
+ * @param {object} item 
+ */
 function confirmAddToCart(item) {
     const confirmation = document.getElementById('addToCartConfirmation');
     confirmation.classList.remove('hidden');
