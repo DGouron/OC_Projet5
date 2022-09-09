@@ -75,7 +75,10 @@
 }
 .item__content__addButton {
 	display: flex;
+	flex-direction: column;
+	align-items: center;
 	justify-content: center;
+	gap: 20px;
 	padding-top: 32px;
 }
 .item__content__addButton button {
@@ -91,7 +94,13 @@
 	box-shadow: rgba(42, 18, 206, 0.9) 0 0 22px 6px;
 }
 
-
+#addToCartConfirmation{
+	color: red;
+}
+.hidden{
+	display: hidden;
+	opacity: 0;
+}
 
 
 

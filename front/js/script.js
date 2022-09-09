@@ -10,7 +10,8 @@ fetch('http://localhost:3000/api/products')
     data.map(item => {
         addNewItem(item, itemsList);
     });
-});
+})
+.catch(error => console.log(error));
 
 function constructItemLink(item) {
     const link = document.createElement('a');
