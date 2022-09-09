@@ -122,7 +122,7 @@ function addToCart(item) {
     let cart = localStorage.getItem('cart');
     cart = JSON.parse(cart);
 
-    if(getIndexOfItem(item, cart) !== -1) {        //Ajouter la quantité
+    if(getIndexOfItem(item, cart) !== -1) {
         const indexOfItem = getIndexOfItem(item, cart);
         const newQuantity = parseInt(cart[indexOfItem].quantity) + parseInt(item.quantity);
         cart[indexOfItem].quantity = newQuantity.toString();
