@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   createCartElement(getCart());
   displayTotalPrice();
   calculateTotalQuantity();
+  bindFormModifications();
 });
 
 function getCart() {
@@ -229,3 +230,165 @@ function calculateTotalQuantity(){
     const cartTotal = document.getElementById('totalQuantity');
     cartTotal.textContent = totalArticles;
 }
+
+function bindFormModifications(){
+    const emailInput = document.getElementById('email');
+    emailInput.addEventListener('change', () => {
+        const emailIsValid = validateEmail(emailInput);
+        if(!emailIsValid){
+            emailError();
+        }else{
+            emailSuccess();
+        }
+    });
+    const firstNameInput = document.getElementById('firstName');
+    firstNameInput.addEventListener('change', () => {
+        const firstNameIsValid = validateName(firstNameInput.value);
+        if(!firstNameIsValid){
+            firstNameError();
+        }else{
+            firstNameSuccess();
+        }
+    });
+    const lastNameInput = document.getElementById('lastName');
+    lastNameInput.addEventListener('change', () => {
+        const lastNameIsValid = validateName(lastNameInput.value);
+        if(!lastNameIsValid){
+            lastNameError();
+        }else{
+            lastNameSuccess();
+        }
+    });
+    const addressInput = document.getElementById('address');
+    addressInput.addEventListener('change', () => {
+        const addressIsValid = validateAddress(addressInput);
+        if(!addressIsValid){
+            addressError();
+        }else{
+            addressSuccess();
+        }
+    });
+    const cityInput = document.getElementById('city');
+    cityInput.addEventListener('change', () => {
+        const cityIsValid = validateName(cityInput.value);
+        if(!cityIsValid){
+            cityError();
+        }else{
+            citySuccess();
+        }
+    });
+    const orderButton = document.getElementById('order');
+    orderButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        handleOrderClick(emailInput, firstNameInput, lastNameInput, addressInput, cityInput);
+    });
+}
+
+function validateEmail(anchor){
+    const email = anchor.value;
+    const emailIsValid = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
+    return emailIsValid;
+}
+
+function emailError(){
+    const emailErrorMsg = document.getElementById('emailErrorMsg');
+    emailErrorMsg.textContent = 'Veuillez entrer une adresse email valide';
+}
+
+function emailSuccess(){
+    const emailErrorMsg = document.getElementById('emailErrorMsg');
+    emailErrorMsg.textContent = '';
+}
+
+function validateName(nameToCheck){
+    const nameIsValid = nameToCheck.match(/^[a-zA-Z]+$/g);
+    return nameIsValid;
+}
+
+function firstNameError(){
+    const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+    firstNameErrorMsg.textContent = 'Veuillez entrer un prénom valide';
+}
+
+function firstNameSuccess(){
+    const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+    firstNameErrorMsg.textContent = '';
+}
+
+function lastNameError(){
+    const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+    lastNameErrorMsg.textContent = 'Veuillez entrer un nom valide';
+}
+
+function lastNameSuccess(){
+    const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+    lastNameErrorMsg.textContent = '';
+}
+
+function validateAddress(anchor){
+    const address = anchor.value;
+    const addressIsValid = address.match(/^[a-zA-Z0-9\s,'-]*$/g); //No weird character, juste letters, numbers and spaces
+    return addressIsValid;
+}
+
+function addressError(){
+    const addressErrorMsg = document.getElementById('addressErrorMsg');
+    addressErrorMsg.textContent = 'Veuillez entrer une adresse valide';
+}
+
+function addressSuccess(){
+    const addressErrorMsg = document.getElementById('addressErrorMsg');
+    addressErrorMsg.textContent = '';
+}
+
+function cityError(){
+    const cityErrorMsg = document.getElementById('cityErrorMsg');
+    cityErrorMsg.textContent = 'Veuillez entrer une ville valide';
+}
+
+function citySuccess(){
+    const cityErrorMsg = document.getElementById('cityErrorMsg');
+    cityErrorMsg.textContent = '';
+}
+
+function handleOrderClick(emailInput, firstNameInput, lastNameInput, addressInput, cityInput){
+    const emailIsValid = validateEmail(emailInput);
+        const firstNameIsValid = validateName(firstNameInput.value);
+        const lastNameIsValid = validateName(lastNameInput.value);
+        const addressIsValid = validateAddress(addressInput);
+        const cityIsValid = validateName(cityInput.value);
+        if(emailIsValid && firstNameIsValid && lastNameIsValid && addressIsValid && cityIsValid){
+            const contact = {
+                firstName: firstNameInput.value,
+                lastName: lastNameInput.value,
+                address: addressInput.value,
+                city: cityInput.value,
+                email: emailInput.value
+            }
+            const products = getCart().map((item) => item.id);
+            const order = {
+                contact,
+                products
+            }
+            sendOrder(order);
+        }
+}
+
+async function sendOrder(order){
+    console.log(order);
+    try{
+        const response = await fetch('http://localhost:3000/api/products/order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        });
+        const data = await response.json();
+        window.location.href = `confirmation.html?orderId=${data.orderId}`;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
