@@ -139,7 +139,7 @@ function addToCart(item) {
 /**
  * Return index of an item in the cart whit the same id and color
  * @param {object} item 
- * @returns 
+ * @returns number
  */
 function getIndexOfItem(item, cart) {
     let index = -1;

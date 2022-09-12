@@ -38,7 +38,7 @@ async function getItems(){
 /**
  * Generate a link from an item
  * @param {object} item 
- * @returns 
+ * @returns HTML Element
  */
 function constructItemLink(item) {
     const link = document.createElement('a');
@@ -50,7 +50,7 @@ function constructItemLink(item) {
 /**
  * Generate an article from an item
  * @param {object} item 
- * @returns 
+ * @returns HTML Element
  */
 function constructItemArticle(item) {
     const article = document.createElement('article');
@@ -64,7 +64,7 @@ function constructItemArticle(item) {
  *  Generate an image from an item
  * @param {string} imageLink 
  * @param {string} alternativeText 
- * @returns 
+ * @returns HTML Element
  */
 function constructItemImage(imageLink, alternativeText) {
     const image = document.createElement('img');
