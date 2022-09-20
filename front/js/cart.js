@@ -40,6 +40,7 @@ async function constructItem(item, cartListAnchor){
     itemBlock.classList.add('cart__item');
     itemBlock.setAttribute('data-id', localItem.id);
     itemBlock.setAttribute('data-color', localItem.color);
+    itemBlock.setAttribute('id', getUniqueID(localItem));
 
     itemBlock.appendChild(constructItemImage(itemDataFromAPI.imageUrl, itemDataFromAPI.altTxt));
     itemBlock.appendChild(constructItemContent(itemDataFromAPI, localItem));
@@ -194,7 +195,6 @@ function constructItemDeleteButton(){
 
     return itemDeleteButton;
 }
-
 /**
  * @description Delete the item from the cart
  * @param {object} itemIdentification 
@@ -207,6 +207,10 @@ function deleteItemByID(itemIdentification){
     cart.splice(itemIndex, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
 
+    const cartView = document.getElementById('cart__items');
+    const itemToDelete = document.getElementById(getUniqueID(itemIdentification));
+    cartView.removeChild(itemToDelete);
+    alert("L'item a bien été supprimé du panier");
     refreshCartView();
 }
 
@@ -228,16 +232,17 @@ function getItemIdentificationFromElement(element){
 }
 
 /**
+ * 
+ * @returns unique ID for cart item
+ */
+function getUniqueID(item){
+    return '_' + item.id+ '_' + item.color;
+}
+
+/**
  * @description Refresh the cart view
  */
 function refreshCartView(){
-    const cartListAnchor = document.getElementById('cart__items');
-    const cartListChildren = cartListAnchor.children;
-    for (let i = cartListChildren.length - 1; i >= 0; i--) {
-        cartListChildren[i].remove();
-    };
-
-    createCartElement(getCart());
     displayTotalPrice();
     calculateTotalQuantity();
 }

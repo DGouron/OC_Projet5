@@ -137,10 +137,8 @@ function addToCart(item) {
     const indexOfItem = getIndexOfItem(item);
 
     if(typeof indexOfItem === 'number') {
-        console.log('index of item : ' + indexOfItem);
         const newQuantity = parseInt(cart[indexOfItem].quantity) + parseInt(item.quantity);
         cart[indexOfItem].quantity = newQuantity.toString();
-        //console.table(cart);
         localStorage.setItem('cart', JSON.stringify(cart));
     }else{
         cart.push(item);
@@ -159,15 +157,15 @@ function getIndexOfItem(item) {
 
     let cart = localStorage.getItem('cart');
     cart = JSON.parse(cart);
-    console.log('cart length : ' + cart.length);
+
     if(cart.length == 1) {
         const element = cart[0];
-        console.table('cart in get index of item', cart);
+        
         return element.id === item.id && element.color === item.color ? 0 : false;
     }
 
     for (let index = 0; index < cart.length; index++) {
-        console.table(cart[index]);
+        
         const element = cart[index];
         if(element.id === item.id && element.color === item.color){
             return index;
