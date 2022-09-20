@@ -2,12 +2,27 @@
  * Fetch the data from the API
  */
 document.addEventListener('DOMContentLoaded', () => {
-  createCartElement(getCart());
-  displayTotalPrice();
-  calculateTotalQuantity();
-  bindFormModifications();
+    if(localStorage.getItem('cart') !== null && localStorage.getItem('cart') !== '[]'){
+        createCartElement(getCart());
+        displayTotalPrice();
+        calculateTotalQuantity();
+        bindFormModifications();
+    }else{
+        displayEmptyCart();
+    }
 });
 
+/**
+ * @description Remove the form and the title and display the empty cart message
+ */
+function displayEmptyCart(){
+    document.querySelector('.cart').remove();
+    const container = document.querySelector('.cartAndFormContainer');
+    container.children[0].remove();
+    const messageView = document.createElement('h1');
+    messageView.textContent = 'Votre panier est vide';
+    container.appendChild(messageView);
+}
 /**
  * @description Get all objects from the cart
  * @returns array of objects
@@ -109,7 +124,7 @@ function constructItemDescription(itemDataFromAPI, localItem){
     const itemColor = document.createElement('p');
         itemColor.textContent = localItem.color;
     const itemPrice = document.createElement('p');
-        itemPrice.textContent = Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(itemDataFromAPI.price) + '€';
+        calculateTotalPrice();
 
     itemDescriptionBlock.appendChild(itemTitle);
     itemDescriptionBlock.appendChild(itemColor);
@@ -251,8 +266,9 @@ function refreshCartView(){
  * @description Display the total price of the cart
  */
 function displayTotalPrice(){
-    const totalPrice = document.getElementById('totalPrice');
-    totalPrice.textContent = Intl.NumberFormat('fr-FR', { maximumSignificantDigits: 3 }).format(calculateTotalPrice());
+    const totalPriceView = document.getElementById('totalPrice');
+    const totalPrice = calculateTotalPrice();
+    totalPriceView.textContent = totalPrice !== 0 ? totalPrice  + '€': displayEmptyCart();
 }
 
 /**
