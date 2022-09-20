@@ -98,7 +98,6 @@ function bindAddToCartButton(productID) {
     button.addEventListener('click', (event) => {
         event.preventDefault();
         const quantity = document.getElementById('quantity').value;
-        const price = document.getElementById('price').textContent;
         const color = document.getElementById('colors').value;
         
         if(quantity > 0 && quantity < 100) {
@@ -106,10 +105,9 @@ function bindAddToCartButton(productID) {
             if(isValid(quantity) && isValid(productID) && isValid(color) && isValid(price)) {
                 const color = document.getElementById('colors').value;
                 const item = {
-                id: productID,
-                quantity: quantity,
-                color: color,
-                price: price
+                    id: productID,
+                    quantity: quantity,
+                    color: color
                 }
                 addToCart(item);
             }

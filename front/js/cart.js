@@ -3,7 +3,7 @@
  */
 document.addEventListener('DOMContentLoaded', () => {
     if(localStorage.getItem('cart') !== null && localStorage.getItem('cart') !== '[]'){
-        createCartElement(getCart());
+        createCartElement(getLocalCart());
         displayTotalPrice();
         calculateTotalQuantity();
         bindFormModifications();
@@ -27,7 +27,7 @@ function displayEmptyCart(){
  * @description Get all objects from the cart
  * @returns array of objects
  */
-function getCart() {
+function getLocalCart() {
     const cart = JSON.parse(localStorage.getItem('cart'));
     return cart;
 }
@@ -124,6 +124,7 @@ function constructItemDescription(itemDataFromAPI, localItem){
     const itemColor = document.createElement('p');
         itemColor.textContent = localItem.color;
     const itemPrice = document.createElement('p');
+        itemPrice.textContent = itemDataFromAPI.price + '€';
         calculateTotalPrice();
 
     itemDescriptionBlock.appendChild(itemTitle);
@@ -182,7 +183,7 @@ function constructSettingQuantity(localItem){
  */
 function updateQuantity(event, itemIdentification){
     const newQuantity = event.target.value;
-    let cart = getCart();
+    let cart = getLocalCart();
     const itemIndex = cart.findIndex((item) => item.id === itemIdentification.id && item.color === itemIdentification.color);
     cart[itemIndex].quantity = newQuantity.toString();
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -217,7 +218,7 @@ function constructItemDeleteButton(){
 function deleteItemByID(itemIdentification){
     console.log("delete item " + itemIdentification.id + " " + itemIdentification.color);
 
-    let cart = getCart();
+    let cart = getLocalCart();
     const itemIndex = cart.findIndex((item) => item.id === itemIdentification.id && item.color === itemIdentification.color);
     cart.splice(itemIndex, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -276,7 +277,7 @@ function displayTotalPrice(){
  * @returns total price of the cart
  */
 function calculateTotalPrice(){
-    let cart = getCart();
+    let cart = getLocalCart();
     let totalPrice = 0;
     cart.forEach((item) => {
         totalPrice += parseInt(item.quantity) * item.price;
@@ -288,7 +289,7 @@ function calculateTotalPrice(){
  * @description Calculate the total quantity of the cart
  */
 function calculateTotalQuantity(){
-    const cart = getCart();
+    const cart = getLocalCart();
     let totalArticles = 0;
     cart.forEach((item) => {
         totalArticles += parseInt(item.quantity);
@@ -533,7 +534,7 @@ function handleOrderClick(){
                 email: emailInput.value
             }
     
-            const products = getCart().map((item) => item.id);
+            const products = getLocalCart().map((item) => item.id);
             const order = {
                 contact,
                 products
