@@ -55,7 +55,7 @@ async function constructItem(item, cartListAnchor){
     try {
         const response = await fetch(`http://localhost:3000/api/products/${id}`);
         const data = await response.json();
-        return(data);
+        return data;
     }
     catch (error) {
         console.log(error);
@@ -297,10 +297,10 @@ function bindFormModifications(){
 function handleEmailInput(){
     const emailInput = document.getElementById('email');
     emailInput.addEventListener('change', () => {
-        validateEmail(emailInput) ? emailSuccess() : emailError();
+        isValid('email', emailInput.value);
     });
     emailInput.addEventListener('blur', () => {
-        validateEmail(emailInput) ? emailSuccess() : emailError();
+        isValid('email', emailInput.value);
     });
 }
 
@@ -310,10 +310,10 @@ function handleEmailInput(){
  function handleFirstNameInput(){
     const firstNameInput = document.getElementById('firstName');
     firstNameInput.addEventListener('change', () => {
-        validateName(firstNameInput.value) ? firstNameSuccess() : firstNameError();
+        isValid('firstname', firstNameInput.value);
     });
     firstNameInput.addEventListener('blur', () => {
-        validateName(firstNameInput.value) ? firstNameSuccess() : firstNameError();
+        isValid('firstname', firstNameInput.value);
     });
 }
 
@@ -323,10 +323,10 @@ function handleEmailInput(){
 function handleLastNameInput(){
     const lastNameInput = document.getElementById('lastName');
     lastNameInput.addEventListener('change', () => {
-        validateName(lastNameInput.value) ? lastNameSuccess() : lastNameError();
+        isValid('lastname', lastNameInput.value);
     });
     lastNameInput.addEventListener('blur', () => {
-        validateName(lastNameInput.value) ? lastNameSuccess() : lastNameError();
+        isValid('lastname', lastNameInput.value);
     });
 }
 
@@ -336,30 +336,56 @@ function handleLastNameInput(){
 function handleAddressInput(){
     const addressInput = document.getElementById('address');
     addressInput.addEventListener('change', () => {
-        validateAddress(addressInput) ? addressSuccess() : addressError();
+        isValid('address', addressInput.value);
     });
     addressInput.addEventListener('blur', () => {
-        validateAddress(addressInput) ? addressSuccess() : addressError();
+        isValid('address', addressInput.value);
     });
 }
 
 function handleCityInput(){
     const cityInput = document.getElementById('city');
     cityInput.addEventListener('change', () => {
-        validateName(cityInput.value) ? citySuccess() : cityError();
+        isValid('city', cityInput.value);
     });
     cityInput.addEventListener('blur', () => {
-        validateName(cityInput.value) ? citySuccess() : cityError();
+        isValid('city', cityInput.value);
     });
 }
 
+function isValid(type, value){
+    let bIsValid = false;
+    switch(type){
+        case 'email':
+            bIsValid = validateEmail(value);
+            bIsValid ? emailSuccess() : emailError();
+            return bIsValid;
+        case 'firstname':
+            bIsValid = validateName(value);
+            bIsValid ? firstNameSuccess() : firstNameError();
+            return bIsValid;
+        case 'lastname':
+            bIsValid = validateName(value);
+            bIsValid ? lastNameSuccess() : lastNameError();
+            return bIsValid;
+        case 'address':
+            bIsValid = validateAddress(value);
+            bIsValid ? addressSuccess() : addressError();
+            return bIsValid;
+        case 'city':
+            bIsValid = validateName(value);
+            bIsValid ? citySuccess() : cityError();
+            return bIsValid;
+        default:
+            return bIsValid;
+    }
+}
 /**
  * @description check if the email is valid
  * @param {HTML element} anchor 
  * @returns bool
  */
-function validateEmail(anchor){
-    const email = anchor.value;
+function validateEmail(email){
     const emailIsValid = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
     return emailIsValid;
 }
@@ -427,8 +453,7 @@ function lastNameSuccess(){
  * @param {HTML element} anchor 
  * @returns bool
  */
-function validateAddress(anchor){
-    const address = anchor.value;
+function validateAddress(address){
     const addressIsValid = address.match(/^[a-zA-Z0-9\s,'-]*$/g) && address.length > 5; //No weird character, juste letters, numbers and spaces
     return addressIsValid;
 }
@@ -475,13 +500,10 @@ function handleOrderClick(){
     const addressInput = document.getElementById('address');
     const cityInput = document.getElementById('city');
 
-    validateEmail(emailInput) ? emailSuccess() : emailError();
-    validateName(firstNameInput.value) ? firstNameSuccess() : firstNameError();
-    validateName(lastNameInput.value) ? lastNameSuccess() : lastNameError();
-    validateAddress(addressInput) ? addressSuccess() : addressError();
-    validateName(cityInput.value) ? citySuccess() : cityError();
+    if(isValid('email', emailInput.value) && isValid('firstname', firstNameInput.value) && isValid('lastname', lastNameInput.value) 
+        && isValid('address', addressInput.value) && isValid('city', cityInput.value)){
 
-        if(emailIsValid && firstNameIsValid && lastNameIsValid && addressIsValid && cityIsValid){
+        if(preventEmptyValue(firstNameInput.value) && preventEmptyValue(lastNameInput.value) && preventEmptyValue(addressInput.value) && preventEmptyValue(cityInput.value)){
             const contact = {
                 firstName: firstNameInput.value,
                 lastName: lastNameInput.value,
@@ -489,6 +511,7 @@ function handleOrderClick(){
                 city: cityInput.value,
                 email: emailInput.value
             }
+    
             const products = getCart().map((item) => item.id);
             const order = {
                 contact,
@@ -496,6 +519,7 @@ function handleOrderClick(){
             }
             sendOrder(order);
         }
+    }
 }
 
 /**
@@ -523,4 +547,12 @@ async function sendOrder(order){
 
 function deleteCart(){
     localStorage.removeItem('cart');
+}
+
+function preventEmptyValue(value){
+    let bIsValid = true;
+        value === '' ? bIsValid = false : bIsValid = true;
+        value === null ? bIsValid = false : bIsValid = true;
+        typeof value === undefined ? bIsValid = false : bIsValid = true;
+    return bIsValid
 }

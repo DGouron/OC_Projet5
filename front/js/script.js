@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
 async function getItems(){
     try {
         const response = await fetch('http://localhost:3000/api/products');
+        if(!response.ok){//lever une erreur ici
+            throw new Error('Erreur HTTP: ' + response.status);
+        }
+
         const data = await response.json();
 
         const itemsList = document.getElementById('items');

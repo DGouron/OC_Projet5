@@ -98,17 +98,29 @@ function bindAddToCartButton(productID) {
     button.addEventListener('click', (event) => {
         event.preventDefault();
         const quantity = document.getElementById('quantity').value;
-        if(quantity > 0) {
-            const color = document.getElementById('colors').value;
-            const item = {
+        const price = document.getElementById('price').textContent;
+        const color = document.getElementById('colors').value;
+        
+        if(quantity > 0 && quantity < 100) {
+            //Ajouter un controle des valeur mentionné dans le formulaire
+            if(isValid(quantity) && isValid(productID) && isValid(color) && isValid(price)) {
+                const color = document.getElementById('colors').value;
+                const item = {
                 id: productID,
                 quantity: quantity,
                 color: color,
-                price: document.getElementById('price').textContent
+                price: price
+                }
+                addToCart(item);
             }
-            addToCart(item);
+            else{
+                alert('Veuillez remplir tous les champs du formulaire');
+            }
         }
     });
+}
+function isValid(value) {
+    return value !== null && typeof value !== undefined && value !== '';
 }
 
 /**
@@ -122,18 +134,20 @@ function addToCart(item) {
 
     let cart = localStorage.getItem('cart');
     cart = JSON.parse(cart);
+    const indexOfItem = getIndexOfItem(item);
 
-    if(getIndexOfItem(item, cart) !== -1) {
-        const indexOfItem = getIndexOfItem(item, cart);
+    if(typeof indexOfItem === 'number') {
+        console.log('index of item : ' + indexOfItem);
         const newQuantity = parseInt(cart[indexOfItem].quantity) + parseInt(item.quantity);
         cart[indexOfItem].quantity = newQuantity.toString();
+        //console.table(cart);
         localStorage.setItem('cart', JSON.stringify(cart));
     }else{
         cart.push(item);
         localStorage.setItem('cart', JSON.stringify(cart));
     }
 
-    confirmAddToCart(item);
+    alertCart(item);
 }
 
 /**
@@ -141,29 +155,32 @@ function addToCart(item) {
  * @param {object} item 
  * @returns number
  */
-function getIndexOfItem(item, cart) {
-    let index = -1;
+function getIndexOfItem(item) {
+
+    let cart = localStorage.getItem('cart');
+    cart = JSON.parse(cart);
+    console.log('cart length : ' + cart.length);
+    if(cart.length == 1) {
+        const element = cart[0];
+        console.table('cart in get index of item', cart);
+        return element.id === item.id && element.color === item.color ? 0 : false;
+    }
+
     for (let index = 0; index < cart.length; index++) {
+        console.table(cart[index]);
         const element = cart[index];
         if(element.id === item.id && element.color === item.color){
             return index;
         }
     }
-
-    return index;
+    return false;
 }
 
 /**
  * Confirm the add to cart event to the crawler
  * @param {object} item 
  */
-function confirmAddToCart(item) {
-    const confirmation = document.getElementById('addToCartConfirmation');
-    confirmation.classList.remove('hidden');
+function alertCart(item) {
     const isMultiple = item.quantity > 1 ? 's' : ''; 
-    confirmation.textContent =  item.quantity + ' produit' + isMultiple +  ' ajouté' +  isMultiple +' au panier !';
-
-    setTimeout(() => {
-        confirmation.classList.add('hidden');
-    }, 3000);
+    alert(item.quantity + ' produit' + isMultiple +  ' ajouté' +  isMultiple +' au panier !')
 }
