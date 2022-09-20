@@ -4,14 +4,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     if(localStorage.getItem('cart') !== null && localStorage.getItem('cart') !== '[]'){
         createCartElement(getLocalCart());
-        displayTotalPrice();
         calculateTotalQuantity();
         bindFormModifications();
     }else{
         displayEmptyCart();
     }
 });
-
 /**
  * @description Remove the form and the title and display the empty cart message
  */
@@ -31,7 +29,6 @@ function getLocalCart() {
     const cart = JSON.parse(localStorage.getItem('cart'));
     return cart;
 }
-
 /**
  * @description Read the cart and create the HTML elements
  * @param {array} cart 
@@ -42,7 +39,6 @@ function createCartElement(cart){
         constructItem(item, cartList);
     }
 }
-
 /**
  * @description Retrieve data from the API and construct the item
  * @param {object} item 
@@ -60,6 +56,7 @@ async function constructItem(item, cartListAnchor){
     itemBlock.appendChild(constructItemImage(itemDataFromAPI.imageUrl, itemDataFromAPI.altTxt));
     itemBlock.appendChild(constructItemContent(itemDataFromAPI, localItem));
     cartListAnchor.appendChild(itemBlock);
+    displayTotalPrice();
 }
 
 /**
@@ -125,7 +122,7 @@ function constructItemDescription(itemDataFromAPI, localItem){
         itemColor.textContent = localItem.color;
     const itemPrice = document.createElement('p');
         itemPrice.textContent = itemDataFromAPI.price + '€';
-        calculateTotalPrice();
+        itemPrice.classList.add('item__price');
 
     itemDescriptionBlock.appendChild(itemTitle);
     itemDescriptionBlock.appendChild(itemColor);
@@ -154,8 +151,8 @@ function constructItemSettings(localItem){
  * @returns HTML element
  */
 function constructSettingQuantity(localItem){
-    const itemQuantity = document.createElement('div');
-        itemQuantity.classList.add('cart__item__content__settings__quantity');
+    const itemQuantityContainer = document.createElement('div');
+        itemQuantityContainer.classList.add('cart__item__content__settings__quantity');
     const itemQuantityLabel = document.createElement('label');
         itemQuantityLabel.setAttribute('for', 'itemQuantity');
         itemQuantityLabel.textContent = 'Qté :';
@@ -166,14 +163,23 @@ function constructSettingQuantity(localItem){
         itemQuantityInput.setAttribute('min', '1');
         itemQuantityInput.setAttribute('max', '100');
         itemQuantityInput.setAttribute('value', parseInt(localItem.quantity));
-    itemQuantity.appendChild(itemQuantityLabel);
-    itemQuantity.appendChild(itemQuantityInput);
+    itemQuantityContainer.appendChild(itemQuantityLabel);
+    itemQuantityContainer.appendChild(itemQuantityInput);
 
     itemQuantityInput.addEventListener('change', (event) => {
-        updateQuantity(event, getItemIdentificationFromElement(itemQuantity));
+        const itemQuantityFromInput = event.target.value;
+
+        if(itemQuantityFromInput > 100){
+            updateQuantityByAmount(100, getItemIdentificationFromElement(itemQuantityContainer));
+            itemQuantityInput.value = 100;
+            displayTotalPrice();
+            return itemQuantityContainer;
+        }
+
+        updateQuantityByAmount(event.target.value, getItemIdentificationFromElement(itemQuantityContainer));
     });
 
-    return itemQuantity;
+    return itemQuantityContainer;
 }
 
 /**
@@ -181,11 +187,10 @@ function constructSettingQuantity(localItem){
  * @param {html element} event 
  * @param {object} itemIdentification 
  */
-function updateQuantity(event, itemIdentification){
-    const newQuantity = event.target.value;
+function updateQuantityByAmount(amount, itemIdentification){
     let cart = getLocalCart();
     const itemIndex = cart.findIndex((item) => item.id === itemIdentification.id && item.color === itemIdentification.color);
-    cart[itemIndex].quantity = newQuantity.toString();
+    cart[itemIndex].quantity = amount.toString();
     localStorage.setItem('cart', JSON.stringify(cart));
 
     displayTotalPrice();
@@ -277,11 +282,13 @@ function displayTotalPrice(){
  * @returns total price of the cart
  */
 function calculateTotalPrice(){
-    let cart = getLocalCart();
+    const allPriceText = document.getElementsByClassName('item__price');
     let totalPrice = 0;
-    cart.forEach((item) => {
-        totalPrice += parseInt(item.quantity) * item.price;
-    });
+    for (let i = 0; i < allPriceText.length; i++) {
+        const price = parseInt(allPriceText[i].textContent);
+        const quantity = parseInt(allPriceText[i].closest('article').querySelector('input').value); // get the quantity of the item from the input select
+        totalPrice += price * quantity;
+    }
     return totalPrice;
 }
 
@@ -338,7 +345,6 @@ function handleEmailInput(){
         isValid('firstname', firstNameInput.value);
     });
 }
-
 /**
  * @description Handle last name input
  */
@@ -351,7 +357,6 @@ function handleLastNameInput(){
         isValid('lastname', lastNameInput.value);
     });
 }
-
 /**
  * @description Handle events from address input
  */
@@ -374,7 +379,6 @@ function handleCityInput(){
         isValid('city', cityInput.value);
     });
 }
-
 function isValid(type, value){
     let bIsValid = false;
     switch(type){
@@ -411,7 +415,6 @@ function validateEmail(email){
     const emailIsValid = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
     return emailIsValid;
 }
-
 /**
  * @description Display the error message for the email
  */
@@ -419,7 +422,6 @@ function emailError(){
     const emailErrorMsg = document.getElementById('emailErrorMsg');
     emailErrorMsg.textContent = 'Veuillez entrer une adresse email valide';
 }
-
 /**
  * @description Display the success message for the email
  */
@@ -427,7 +429,6 @@ function emailSuccess(){
     const emailErrorMsg = document.getElementById('emailErrorMsg');
     emailErrorMsg.textContent = '';
 }
-
 /**
  * @description check if the name is valid
  * @param {string} nameToCheck 
@@ -437,7 +438,6 @@ function validateName(nameToCheck){
     const nameIsValid = nameToCheck.match(/^[a-zA-Z]+$/g);
     return nameIsValid;
 }
-
 /**
  * @description Display the error message for the first name
  */
@@ -445,7 +445,6 @@ function firstNameError(){
     const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
     firstNameErrorMsg.textContent = 'Veuillez entrer un prénom valide';
 }
-
 /**
  * @description Display the success message for the first name
  */
@@ -453,7 +452,6 @@ function firstNameSuccess(){
     const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
     firstNameErrorMsg.textContent = '';
 }
-
 /**
  * @description Display the error message for the last name
  */
@@ -461,7 +459,6 @@ function lastNameError(){
     const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
     lastNameErrorMsg.textContent = 'Veuillez entrer un nom valide';
 }
-
 /**
  *  @description Display the success message for the last name
  */
@@ -469,7 +466,6 @@ function lastNameSuccess(){
     const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
     lastNameErrorMsg.textContent = '';
 }
-
 /**
  * @description check if the address is valid
  * @param {HTML element} anchor 
@@ -479,7 +475,6 @@ function validateAddress(address){
     const addressIsValid = address.match(/^[a-zA-Z0-9\s,'-]*$/g) && address.length > 5; //No weird character, juste letters, numbers and spaces
     return addressIsValid;
 }
-
 /**
  * @description Display the error message for the address
  */
@@ -487,7 +482,6 @@ function addressError(){
     const addressErrorMsg = document.getElementById('addressErrorMsg');
     addressErrorMsg.textContent = 'Veuillez entrer une adresse valide';
 }
-
 /**
  * @description Display the success message for the address
  */
@@ -495,7 +489,6 @@ function addressSuccess(){
     const addressErrorMsg = document.getElementById('addressErrorMsg');
     addressErrorMsg.textContent = '';
 }
-
 /**
  * @description Display the error message for the city
  */
@@ -503,7 +496,6 @@ function cityError(){
     const cityErrorMsg = document.getElementById('cityErrorMsg');
     cityErrorMsg.textContent = 'Veuillez entrer une ville valide';
 }
-
 /**
  * @description Display the success message for the city
  */
@@ -511,7 +503,6 @@ function citySuccess(){
     const cityErrorMsg = document.getElementById('cityErrorMsg');
     cityErrorMsg.textContent = '';
 }
-
 /**
  * @description Handle the click on the order button
  */
@@ -543,7 +534,6 @@ function handleOrderClick(){
         }
     }
 }
-
 /**
  * @description Send the order to the server
  * @param {array of object} order 
@@ -566,11 +556,9 @@ async function sendOrder(order){
         console.log(error);
     }
 }
-
 function deleteCart(){
     localStorage.removeItem('cart');
 }
-
 function preventEmptyValue(value){
     let bIsValid = true;
         value === '' ? bIsValid = false : bIsValid = true;
