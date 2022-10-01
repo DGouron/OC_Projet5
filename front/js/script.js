@@ -1,17 +1,8 @@
 
 /**
- * Add a new item to the DOM
- * @param {object} item 
- * @param {element} parentRef 
- */
-const addNewItem = (item, parentRef) => {
-    parentRef.appendChild(constructItemLink(item));
-};
-
-/**
  * Fetch the data from the API
  */
-document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
     getItems();
 });
 
@@ -21,11 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
 async function getItems(){
     try {
         const response = await fetch('http://localhost:3000/api/products');
-        if(!response.ok){//lever une erreur ici
+        
+        if(!response.ok){
             throw new Error('Erreur HTTP: ' + response.status);
         }
 
-        const data = await response.json();
+        const data = await response.json(); //parse the response to JSON
 
         const itemsList = document.getElementById('items');
 
@@ -34,10 +26,18 @@ async function getItems(){
         }
 
     } catch (error) {
-        console.log(error);
         throw new Error(error);
     }
 }
+
+/**
+ * Add a new item to the DOM
+ * @param {object} item 
+ * @param {element} parentRef 
+ */
+ const addNewItem = (item, parentRef) => {
+    parentRef.appendChild(constructItemLink(item));
+};
 
 /**
  * Generate a link from an item

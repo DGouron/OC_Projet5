@@ -7,16 +7,6 @@
     getItem();
 });
 
-const addItemInformations = (item) => {
-    const itemImageAnchor = document.getElementsByClassName('item__img')[0];
-        itemImageAnchor.appendChild(constructItemImage(item.imageUrl, item.altTxt));
-    window.document.title = item.name;
-    constructItemTitle(item.name);
-    constructItemPrice(item.price);
-    constructItemDescription(item.description);
-    constructItemColors(item.colors);
-}
-
 /**
  * Get the item from the API
  */
@@ -26,15 +16,30 @@ async function getItem() {
 
     try {
         const response = await fetch(`http://localhost:3000/api/products/${productID}`);
-        const data = await response.json();
+        
+        if(!response.ok){
+            throw new Error('Erreur HTTP: ' + response.status);
+        }
+
+        const data = await response.json(); //Parse response to JSON
+
         addItemInformations(data);
         bindAddToCartButton(productID);
     }
     catch (error) {
-        console.log(error);
         throw new Error(error);
     }
 };
+
+const addItemInformations = (item) => {
+    const itemImageAnchor = document.getElementsByClassName('item__img')[0];
+        itemImageAnchor.appendChild(constructItemImage(item.imageUrl, item.altTxt));
+    window.document.title = item.name;
+    constructItemTitle(item.name);
+    constructItemPrice(item.price);
+    constructItemDescription(item.description);
+    constructItemColors(item.colors);
+}
 
 /**
  * Generate an image from an item
@@ -100,8 +105,8 @@ function bindAddToCartButton(productID) {
         const quantity = document.getElementById('quantity').value;
         const color = document.getElementById('colors').value;
         
-        if(quantity > 0 && quantity < 100) {
-            //Ajouter un controle des valeur mentionné dans le formulaire
+        if(quantity > 0 && quantity < 100) { //Security check for prevent bad selection
+            
             if(isValid(quantity) && isValid(productID) && isValid(color) && isValid(price)) {
                 const color = document.getElementById('colors').value;
                 const item = {
@@ -112,11 +117,14 @@ function bindAddToCartButton(productID) {
                 addToCart(item);
             }
             else{
-                alert('Veuillez remplir tous les champs du formulaire');
+                alert('Veuillez selectionner une couleur');
             }
+        }else{
+            alert('Veuillez choisir une quantité valide');
         }
     });
 }
+
 function isValid(value) {
     return value !== null && typeof value !== undefined && value !== '';
 }
@@ -156,7 +164,7 @@ function getIndexOfItem(item) {
     let cart = localStorage.getItem('cart');
     cart = JSON.parse(cart);
 
-    if(cart.length == 1) {
+    if(cart.length === 1) {
         const element = cart[0];
         
         return element.id === item.id && element.color === item.color ? 0 : false;

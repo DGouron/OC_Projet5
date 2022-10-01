@@ -325,9 +325,6 @@ function bindFormModifications(){
 
 function handleEmailInput(){
     const emailInput = document.getElementById('email');
-    emailInput.addEventListener('change', () => {
-        isValid('email', emailInput.value);
-    });
     emailInput.addEventListener('blur', () => {
         isValid('email', emailInput.value);
     });
@@ -338,9 +335,6 @@ function handleEmailInput(){
  */
  function handleFirstNameInput(){
     const firstNameInput = document.getElementById('firstName');
-    firstNameInput.addEventListener('change', () => {
-        isValid('firstname', firstNameInput.value);
-    });
     firstNameInput.addEventListener('blur', () => {
         isValid('firstname', firstNameInput.value);
     });
@@ -350,9 +344,6 @@ function handleEmailInput(){
  */
 function handleLastNameInput(){
     const lastNameInput = document.getElementById('lastName');
-    lastNameInput.addEventListener('change', () => {
-        isValid('lastname', lastNameInput.value);
-    });
     lastNameInput.addEventListener('blur', () => {
         isValid('lastname', lastNameInput.value);
     });
@@ -362,9 +353,6 @@ function handleLastNameInput(){
  */
 function handleAddressInput(){
     const addressInput = document.getElementById('address');
-    addressInput.addEventListener('change', () => {
-        isValid('address', addressInput.value);
-    });
     addressInput.addEventListener('blur', () => {
         isValid('address', addressInput.value);
     });
@@ -372,9 +360,6 @@ function handleAddressInput(){
 
 function handleCityInput(){
     const cityInput = document.getElementById('city');
-    cityInput.addEventListener('change', () => {
-        isValid('city', cityInput.value);
-    });
     cityInput.addEventListener('blur', () => {
         isValid('city', cityInput.value);
     });
@@ -539,7 +524,6 @@ function handleOrderClick(){
  * @param {array of object} order 
  */
 async function sendOrder(order){
-    console.log(order);
     try{
         const response = await fetch('http://localhost:3000/api/products/order', {
             method: 'POST',
@@ -556,6 +540,7 @@ async function sendOrder(order){
         console.log(error);
     }
 }
+
 function deleteCart(){
     localStorage.removeItem('cart');
 }
